@@ -1,0 +1,37 @@
+# Reference: How to schedule a pod on the platform NodePool.
+# Add this nodeSelector and toleration to any platform add-on
+# (Kyverno, Cert Manager, External DNS, External Secrets, etc.)
+#
+# For Helm-based add-ons, map these into the chart's values.yaml
+# under the appropriate keys (e.g. nodeSelector, tolerations).
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: example-platform-addon
+  namespace: platform
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: example-platform-addon
+  template:
+    metadata:
+      labels:
+        app: example-platform-addon
+    spec:
+      nodeSelector:
+        workload-type: platform
+      tolerations:
+        - key: workload-type
+          value: platform
+          effect: NoSchedule
+      containers:
+        - name: example
+          image: nginx:latest
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              memory: 256Mi
